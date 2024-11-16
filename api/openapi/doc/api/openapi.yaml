@@ -1,0 +1,157 @@
+openapi: 3.0.3
+info:
+  description: order service
+  title: order service
+  version: 1.0.0
+servers:
+- url: "https://{hostname}/api"
+  variables:
+    hostname:
+      default: 127.0.0.1
+paths:
+  /customer/{customerID}/orders/{orderID}:
+    get:
+      description: get order
+      parameters:
+      - explode: false
+        in: path
+        name: customerID
+        required: true
+        schema:
+          type: string
+        style: simple
+      - explode: false
+        in: path
+        name: orderID
+        required: true
+        schema:
+          type: string
+        style: simple
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Order'
+          description: todo
+        default:
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: todo
+  /customer/{customerID}/orders:
+    post:
+      description: create order
+      parameters:
+      - explode: false
+        in: path
+        name: customerID
+        required: true
+        schema:
+          type: string
+        style: simple
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateOrderRequest'
+        required: true
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Order'
+          description: todo
+        default:
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: todo
+components:
+  schemas:
+    Order:
+      example:
+        customerID: customerID
+        id: id
+        paymentLink: paymentLink
+        items:
+        - quantity: 0
+          name: name
+          id: id
+          priceID: priceID
+        - quantity: 0
+          name: name
+          id: id
+          priceID: priceID
+        status: status
+      properties:
+        id:
+          type: string
+        customerID:
+          type: string
+        status:
+          type: string
+        items:
+          items:
+            $ref: '#/components/schemas/Item'
+          type: array
+        paymentLink:
+          type: string
+      type: object
+    Item:
+      example:
+        quantity: 0
+        name: name
+        id: id
+        priceID: priceID
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        quantity:
+          format: int32
+          type: integer
+        priceID:
+          type: string
+      type: object
+    Error:
+      example:
+        message: message
+      properties:
+        message:
+          type: string
+      type: object
+    CreateOrderRequest:
+      example:
+        customerID: customerID
+        items:
+        - quantity: 0
+          id: id
+        - quantity: 0
+          id: id
+      properties:
+        customerID:
+          type: string
+        items:
+          items:
+            $ref: '#/components/schemas/ItemWithQuantity'
+          type: array
+      required:
+      - customerID
+      - items
+      type: object
+    ItemWithQuantity:
+      example:
+        quantity: 0
+        id: id
+      properties:
+        id:
+          type: string
+        quantity:
+          format: int32
+          type: integer
+      type: object

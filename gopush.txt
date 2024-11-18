@@ -2,4 +2,5 @@ git checkout -b 241116_project_init
 
 git add .;
 
-git commmit -m "scrpits init,build basic framework"
+git commit -m "scrpits init,build basic framework"
+

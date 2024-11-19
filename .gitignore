@@ -1,0 +1,12 @@
+*.out
+
+.env
+
+.idea
+
+**/tmp
+**/bin
+
+internal/**/.air.toml
+
+**/**/**/**.yaml

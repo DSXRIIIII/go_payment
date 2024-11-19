@@ -8,7 +8,6 @@ import (
 func RunHttpServer(serviceName string, wrapper func(router *gin.Engine)) {
 	addr := viper.Sub(serviceName).GetString("http-addr")
 	RunHttpServerOnAddr(addr, wrapper)
-
 }
 
 func RunHttpServerOnAddr(addr string, wrapper func(router *gin.Engine)) {

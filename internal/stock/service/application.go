@@ -2,11 +2,11 @@ package service
 
 import (
 	"context"
+	"github.com/dsxriiiii/l3x_pay/common/metrics"
+	"github.com/dsxriiiii/l3x_pay/stock/adapters"
+	"github.com/dsxriiiii/l3x_pay/stock/app"
+	"github.com/dsxriiiii/l3x_pay/stock/app/query"
 	"github.com/sirupsen/logrus"
-	"github/dsxriiiii/l3x_pay/common/metrics"
-	"github/dsxriiiii/l3x_pay/stock/adapters"
-	"github/dsxriiiii/l3x_pay/stock/app"
-	"github/dsxriiiii/l3x_pay/stock/app/query"
 )
 
 func NewApplication(_ context.Context) app.Application {

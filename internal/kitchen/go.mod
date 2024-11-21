@@ -1,4 +1,4 @@
-module github/dsxriiiii/l3x_pay/kitchen
+module github.com/dsxriiiii/l3x_pay/kitchen
 
 replace github.com/dsxriiiii/l3x_pay/common => ../common
 

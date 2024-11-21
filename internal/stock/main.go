@@ -6,10 +6,10 @@ import (
 	"github.com/dsxriiiii/l3x_pay/common/discovery"
 	"github.com/dsxriiiii/l3x_pay/common/genproto/stockpb"
 	"github.com/dsxriiiii/l3x_pay/common/server"
+	"github.com/dsxriiiii/l3x_pay/stock/ports"
+	"github.com/dsxriiiii/l3x_pay/stock/service"
 	"github.com/sirupsen/logrus"
 	"github.com/spf13/viper"
-	"github/dsxriiiii/l3x_pay/stock/ports"
-	"github/dsxriiiii/l3x_pay/stock/service"
 	"google.golang.org/grpc"
 )
 

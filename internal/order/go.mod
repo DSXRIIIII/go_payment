@@ -1,4 +1,4 @@
-module github/dsxriiiii/l3x_pay/order
+module github.com/dsxriiiii/l3x_pay/order
 
 replace github.com/dsxriiiii/l3x_pay/common => ../common
 

@@ -2,9 +2,11 @@ package command
 
 import (
 	"context"
+	"errors"
 	"github.com/dsxriiiii/l3x_pay/common/decorator"
 	"github.com/dsxriiiii/l3x_pay/common/genproto/orderpb"
 	"github.com/sirupsen/logrus"
+	"github/dsxriiiii/l3x_pay/order/app/query"
 	domain "github/dsxriiiii/l3x_pay/order/domain/order"
 )
 
@@ -17,42 +19,66 @@ type CreateOrderResult struct {
 	OrderID string
 }
 
-type CreateOrderHandle decorator.CommandHandler[CreateOrder, *CreateOrderResult]
+type CreateOrderHandler decorator.CommandHandler[CreateOrder, *CreateOrderResult]
 
-type createOrderHandle struct {
+type createOrderHandler struct {
 	orderRepo domain.Repository
+	stockGRPC query.StockService
 }
 
-func NewCreateOrderHandle(
+func NewCreateOrderHandler(
 	orderRepo domain.Repository,
+	stockGRPC query.StockService,
 	logger *logrus.Entry,
 	metricClient decorator.MetricsClient,
-) CreateOrderHandle {
+) CreateOrderHandler {
 	if orderRepo == nil {
 		panic("create order err, orderRp is nil")
 	}
 	return decorator.ApplyCommandDecorators[CreateOrder, *CreateOrderResult](
-		createOrderHandle{orderRepo: orderRepo},
+		createOrderHandler{orderRepo: orderRepo, stockGRPC: stockGRPC},
 		logger,
 		metricClient,
 	)
 }
 
-func (c createOrderHandle) Handle(ctx context.Context, cmd CreateOrder) (*CreateOrderResult, error) {
-	// TODO call stock grpc to get items
-	var stockResponse []*orderpb.Item
-	for _, item := range cmd.Items {
-		stockResponse = append(stockResponse, &orderpb.Item{
-			ID:       item.ID,
-			Quantity: item.Quantity,
-		})
+func (c createOrderHandler) Handle(ctx context.Context, cmd CreateOrder) (*CreateOrderResult, error) {
+	validItems, err := c.validate(ctx, cmd.Items)
+	if err != nil {
+		return nil, err
 	}
-	order, err := c.orderRepo.Create(ctx, &domain.Order{
+	o, err := c.orderRepo.Create(ctx, &domain.Order{
 		CustomerID: cmd.CustomerID,
-		Items:      stockResponse,
+		Items:      validItems,
 	})
 	if err != nil {
 		return nil, err
 	}
-	return &CreateOrderResult{OrderID: order.ID}, nil
+	return &CreateOrderResult{OrderID: o.ID}, nil
+}
+
+func (c createOrderHandler) validate(ctx context.Context, items []*orderpb.ItemWithQuantity) ([]*orderpb.Item, error) {
+	if len(items) == 0 {
+		return nil, errors.New("must have at least one item")
+	}
+	resp, err := c.stockGRPC.CheckIfItemsInStock(ctx, items)
+	if err != nil {
+		return nil, err
+	}
+	return resp.Items, nil
+}
+
+func packItems(items []*orderpb.ItemWithQuantity) []*orderpb.ItemWithQuantity {
+	merged := make(map[string]int32)
+	for _, item := range items {
+		merged[item.ID] += item.Quantity
+	}
+	var res []*orderpb.ItemWithQuantity
+	for id, quantity := range merged {
+		res = append(res, &orderpb.ItemWithQuantity{
+			ID:       id,
+			Quantity: quantity,
+		})
+	}
+	return res
 }

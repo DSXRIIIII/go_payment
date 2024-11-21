@@ -12,25 +12,25 @@ type UpdateOrder struct {
 	UpdateFn func(ctx context.Context, order *domain.Order) (*domain.Order, error)
 }
 
-type UpdateOrderHandle decorator.CommandHandler[UpdateOrder, interface{}]
+type UpdateOrderHandler decorator.CommandHandler[UpdateOrder, interface{}]
 
-type updateOrderHandle struct {
+type updateOrderHandler struct {
 	orderRepo domain.Repository
 	// TODO stock rpc
 }
 
-func NewUpdateOrderHandle(orderRepo domain.Repository, logger *logrus.Entry, metricClient decorator.MetricsClient) UpdateOrderHandle {
+func NewUpdateOrderHandler(orderRepo domain.Repository, logger *logrus.Entry, metricClient decorator.MetricsClient) UpdateOrderHandler {
 	if orderRepo == nil {
 		panic("update order err,nil repo found")
 	}
 	return decorator.ApplyCommandDecorators[UpdateOrder, interface{}](
-		updateOrderHandle{orderRepo: orderRepo},
+		updateOrderHandler{orderRepo: orderRepo},
 		logger,
 		metricClient,
 	)
 }
 
-func (u updateOrderHandle) Handle(ctx context.Context, cmd UpdateOrder) (interface{}, error) {
+func (u updateOrderHandler) Handle(ctx context.Context, cmd UpdateOrder) (interface{}, error) {
 	if cmd.UpdateFn == nil {
 		logrus.Warnf("updateOrderHandle got nil UpdateFn,order = %#v", cmd.Order)
 		cmd.UpdateFn = func(_ context.Context, order *domain.Order) (*domain.Order, error) {

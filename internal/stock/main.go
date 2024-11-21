@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"github.com/dsxriiiii/l3x_pay/common/config"
+	"github.com/dsxriiiii/l3x_pay/common/discovery"
 	"github.com/dsxriiiii/l3x_pay/common/genproto/stockpb"
 	"github.com/dsxriiiii/l3x_pay/common/server"
 	"github.com/sirupsen/logrus"
@@ -24,6 +25,13 @@ func main() {
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
 	application := service.NewApplication(ctx)
+	deregisterFunc, err := discovery.RegisterToConsul(ctx, serviceName)
+	if err != nil {
+		logrus.Fatal(err)
+	}
+	defer func() {
+		_ = deregisterFunc()
+	}()
 	switch serverType {
 	case "grpc":
 		server.RunGRPCServer(serviceName, func(server *grpc.Server) {

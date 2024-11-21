@@ -16,9 +16,9 @@ func init() {
 }
 
 func RunGRPCServer(serviceName string, registerServer func(server *grpc.Server)) {
-	addr := viper.Sub(serviceName).GetString("ports-addr")
+	addr := viper.Sub(serviceName).GetString("grpc-addr")
 	if addr == "" {
-		// TODO warning log
+		logrus.Warn("addr is nil")
 		addr = viper.GetString("fallback-ports-addr")
 	}
 	RunGRPCServerOnAddr(addr, registerServer)

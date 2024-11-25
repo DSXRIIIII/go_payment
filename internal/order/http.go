@@ -2,10 +2,10 @@ package main
 
 import (
 	"github.com/dsxriiiii/l3x_pay/common/genproto/orderpb"
+	"github.com/dsxriiiii/l3x_pay/order/app"
+	"github.com/dsxriiiii/l3x_pay/order/app/command"
+	"github.com/dsxriiiii/l3x_pay/order/app/query"
 	"github.com/gin-gonic/gin"
-	"github/dsxriiiii/l3x_pay/order/app"
-	"github/dsxriiiii/l3x_pay/order/app/command"
-	"github/dsxriiiii/l3x_pay/order/app/query"
 	"net/http"
 )
 

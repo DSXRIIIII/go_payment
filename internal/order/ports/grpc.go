@@ -3,7 +3,7 @@ package ports
 import (
 	"context"
 	orderpb "github.com/dsxriiiii/l3x_pay/common/genproto/orderpb"
-	"github/dsxriiiii/l3x_pay/order/app"
+	"github.com/dsxriiiii/l3x_pay/order/app"
 	emptypb "google.golang.org/protobuf/types/known/emptypb"
 )
 

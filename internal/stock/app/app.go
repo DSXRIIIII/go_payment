@@ -1,6 +1,6 @@
 package app
 
-import "github/dsxriiiii/l3x_pay/stock/app/query"
+import "github.com/dsxriiiii/l3x_pay/stock/app/query"
 
 type Application struct {
 	Commands Commands

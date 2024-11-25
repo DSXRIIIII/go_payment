@@ -3,8 +3,8 @@ package query
 import (
 	"context"
 	"github.com/dsxriiiii/l3x_pay/common/decorator"
+	domain "github.com/dsxriiiii/l3x_pay/order/domain/order"
 	"github.com/sirupsen/logrus"
-	domain "github/dsxriiiii/l3x_pay/order/domain/order"
 )
 
 type GetCustomerOrder struct {

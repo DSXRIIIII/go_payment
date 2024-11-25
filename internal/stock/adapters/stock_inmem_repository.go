@@ -3,7 +3,7 @@ package adapters
 import (
 	"context"
 	"github.com/dsxriiiii/l3x_pay/common/genproto/orderpb"
-	domain "github/dsxriiiii/l3x_pay/stock/domain/stock"
+	domain "github.com/dsxriiiii/l3x_pay/stock/domain/stock"
 	"sync"
 )
 

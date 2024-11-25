@@ -4,3 +4,4 @@ git add .;
 
 git commit -m "scrpits init,build basic framework"
 
+git push --set-upstream github 241121_stock_grpc

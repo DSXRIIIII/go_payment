@@ -3,8 +3,8 @@ package ports
 import (
 	"context"
 	"github.com/dsxriiiii/l3x_pay/common/genproto/stockpb"
-	"github/dsxriiiii/l3x_pay/stock/app"
-	"github/dsxriiiii/l3x_pay/stock/app/query"
+	"github.com/dsxriiiii/l3x_pay/stock/app"
+	"github.com/dsxriiiii/l3x_pay/stock/app/query"
 )
 
 type GRPCServer struct {

@@ -2,8 +2,8 @@ package adapters
 
 import (
 	"context"
+	domain "github.com/dsxriiiii/l3x_pay/order/domain/order"
 	"github.com/sirupsen/logrus"
-	domain "github/dsxriiiii/l3x_pay/order/domain/order"
 	"strconv"
 	"sync"
 	"time"

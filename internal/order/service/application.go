@@ -3,13 +3,13 @@ package service
 import (
 	"context"
 	grpcClient "github.com/dsxriiiii/l3x_pay/common/client"
+	"github.com/dsxriiiii/l3x_pay/order/adapters"
+	"github.com/dsxriiiii/l3x_pay/order/adapters/grpc"
+	"github.com/dsxriiiii/l3x_pay/order/app"
+	"github.com/dsxriiiii/l3x_pay/order/app/command"
+	"github.com/dsxriiiii/l3x_pay/order/app/query"
+	"github.com/dsxriiiii/l3x_pay/order/metrics"
 	"github.com/sirupsen/logrus"
-	"github/dsxriiiii/l3x_pay/order/adapters"
-	"github/dsxriiiii/l3x_pay/order/adapters/grpc"
-	"github/dsxriiiii/l3x_pay/order/app"
-	"github/dsxriiiii/l3x_pay/order/app/command"
-	"github/dsxriiiii/l3x_pay/order/app/query"
-	"github/dsxriiiii/l3x_pay/order/metrics"
 )
 
 func NewApplication(ctx context.Context) (app.Application, func()) {

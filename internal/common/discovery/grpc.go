@@ -14,7 +14,7 @@ func RegisterToConsul(ctx context.Context, serviceName string) (func() error, er
 		return func() error { return nil }, err
 	}
 	instanceID := GenerateInstanceID(serviceName)
-	grpcAddr := viper.Sub(serviceName).GetString("grpc_addr")
+	grpcAddr := viper.Sub(serviceName).GetString("grpc-addr")
 	if err := registry.Register(ctx, instanceID, serviceName, grpcAddr); err != nil {
 		return func() error { return nil }, err
 	}

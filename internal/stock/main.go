@@ -5,6 +5,7 @@ import (
 	"github.com/dsxriiiii/l3x_pay/common/config"
 	"github.com/dsxriiiii/l3x_pay/common/discovery"
 	"github.com/dsxriiiii/l3x_pay/common/genproto/stockpb"
+	"github.com/dsxriiiii/l3x_pay/common/logging"
 	"github.com/dsxriiiii/l3x_pay/common/server"
 	"github.com/dsxriiiii/l3x_pay/stock/ports"
 	"github.com/dsxriiiii/l3x_pay/stock/service"
@@ -14,6 +15,7 @@ import (
 )
 
 func init() {
+	logging.Init()
 	if err := config.NewViperConfig(); err != nil {
 		logrus.Fatal(err)
 	}

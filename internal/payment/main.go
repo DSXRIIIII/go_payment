@@ -5,6 +5,7 @@ import (
 	"github.com/dsxriiiii/l3x_pay/common/config"
 	"github.com/dsxriiiii/l3x_pay/common/logging"
 	"github.com/dsxriiiii/l3x_pay/common/server"
+	"github.com/dsxriiiii/l3x_pay/payment/infrastructure/consumer"
 	"github.com/sirupsen/logrus"
 	"github.com/spf13/viper"
 )
@@ -29,6 +30,8 @@ func main() {
 		_ = ch.Close()
 		_ = closeCh()
 	}()
+
+	go consumer.NewConsumer().Listen(ch)
 
 	paymentHandler := NewPaymentHandler()
 

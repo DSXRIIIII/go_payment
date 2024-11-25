@@ -21,9 +21,3 @@ payment:
 
 stripe:
   key: your_key
-
-rabbitmq:
-  user: guest
-  password: guest
-  host: 127.0.0.1
-  port: 5672

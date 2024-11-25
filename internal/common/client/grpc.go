@@ -2,7 +2,9 @@ package client
 
 import (
 	"context"
+	"github.com/dsxriiiii/l3x_pay/common/discovery"
 	"github.com/dsxriiiii/l3x_pay/common/genproto/stockpb"
+	"github.com/sirupsen/logrus"
 	"github.com/spf13/viper"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
@@ -10,7 +12,13 @@ import (
 
 // NewStockGRPCClient 封装grpc客户端
 func NewStockGRPCClient(ctx context.Context) (client stockpb.StockServiceClient, close func() error, err error) {
-	grpcAddr := viper.GetString("stock.grpc-addr")
+	grpcAddr, err := discovery.GetServiceAddr(ctx, viper.GetString("stock.service-name"))
+	if err != nil {
+		return nil, func() error { return nil }, err
+	}
+	if grpcAddr == "" {
+		logrus.Warn("empty grpc addr for stock grpc")
+	}
 	opts, err := grpcDialOption(grpcAddr)
 	if err != nil {
 		return nil, func() error { return nil }, err

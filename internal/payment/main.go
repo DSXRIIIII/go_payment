@@ -1,6 +1,7 @@
 package main
 
 import (
+	"github.com/dsxriiiii/l3x_pay/common/broker"
 	"github.com/dsxriiiii/l3x_pay/common/config"
 	"github.com/dsxriiiii/l3x_pay/common/logging"
 	"github.com/dsxriiiii/l3x_pay/common/server"
@@ -17,6 +18,17 @@ func init() {
 
 func main() {
 	serverType := viper.GetString("payment.server-to-run")
+
+	ch, closeCh := broker.Connect(
+		viper.GetString("rabbitmq.user"),
+		viper.GetString("rabbitmq.password"),
+		viper.GetString("rabbitmq.host"),
+		viper.GetString("rabbitmq.port"),
+	)
+	defer func() {
+		_ = ch.Close()
+		_ = closeCh()
+	}()
 
 	paymentHandler := NewPaymentHandler()
 

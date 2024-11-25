@@ -17,5 +17,5 @@ func (h *PaymentHandler) RegisterRouters(c *gin.Engine) {
 }
 
 func (h *PaymentHandler) handleWebhook(c *gin.Context) {
-	logrus.Info("Got webhook from stripe")
+	logrus.Info("receive webhook from stripe")
 }

@@ -24,7 +24,6 @@ func (c createPaymentHandler) Handle(ctx context.Context, cmd CreatePayment) (st
 	if err != nil {
 		return "", err
 	}
-	logrus.Infof("what,what,what,what,what,what,what,")
 	logrus.Infof("create payment link for order: %s success, payment link:%s", cmd.Order.ID, link)
 	newOrder := &orderpb.Order{
 		ID:          cmd.Order.ID,

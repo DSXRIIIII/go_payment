@@ -1,8 +1,6 @@
-fallback-grpc-addr: 127.0.0.1:3030
-
+fallback-grpc-addr: 127.0.0.1:5050
 consul:
-  addr: 127.0.0.1:8500
-
+  addr: your_addr
 order:
   service-name: order
   server-to-run: http
@@ -21,10 +19,13 @@ payment:
   http-addr: 127.0.0.1:8284
   grpc-addr: 127.0.0.1:5004
 
+stripe-key: your_key
+
 rabbitmq:
   user: guest
   password: guest
-  host: 127.0.0.1
-  port: 5672
+  host: host
+  port: port
 
-stripe-key: "${STRIPE_KEY}"
+
+

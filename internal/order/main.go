@@ -2,11 +2,13 @@ package main
 
 import (
 	"context"
+	"github.com/dsxriiiii/l3x_pay/common/broker"
 	"github.com/dsxriiiii/l3x_pay/common/config"
 	"github.com/dsxriiiii/l3x_pay/common/discovery"
 	"github.com/dsxriiiii/l3x_pay/common/genproto/orderpb"
 	"github.com/dsxriiiii/l3x_pay/common/logging"
 	"github.com/dsxriiiii/l3x_pay/common/server"
+	"github.com/dsxriiiii/l3x_pay/order/infrastructure/consumer"
 	"github.com/dsxriiiii/l3x_pay/order/ports"
 	"github.com/dsxriiiii/l3x_pay/order/service"
 	"github.com/gin-gonic/gin"
@@ -40,12 +42,25 @@ func main() {
 		_ = deregisterFunc()
 	}()
 
+	ch, closeCh := broker.Connect(
+		viper.GetString("rabbitmq.user"),
+		viper.GetString("rabbitmq.password"),
+		viper.GetString("rabbitmq.host"),
+		viper.GetString("rabbitmq.port"),
+	)
+	defer func() {
+		_ = ch.Close()
+		_ = closeCh()
+	}()
+	go consumer.NewConsumer(application).Listen(ch)
+
 	go server.RunGRPCServer(serviceName, func(server *grpc.Server) {
 		svc := ports.NewGRPCServer(application)
 		orderpb.RegisterOrderServiceServer(server, svc)
 	})
 
 	server.RunHttpServer(serviceName, func(router *gin.Engine) {
+		router.StaticFile("/success", "../../public/success.html")
 		ports.RegisterHandlersWithOptions(router, HttpServer{
 			app: application,
 		}, ports.GinServerOptions{

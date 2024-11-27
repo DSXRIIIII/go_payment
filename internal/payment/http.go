@@ -1,15 +1,27 @@
 package main
 
 import (
+	"context"
+	"encoding/json"
+	"github.com/dsxriiiii/l3x_pay/common/broker"
+	"github.com/dsxriiiii/l3x_pay/common/genproto/orderpb"
+	domain "github.com/dsxriiiii/l3x_pay/payment/domain"
 	"github.com/gin-gonic/gin"
+	amqp "github.com/rabbitmq/amqp091-go"
 	"github.com/sirupsen/logrus"
+	"github.com/spf13/viper"
+	"github.com/stripe/stripe-go/v81"
+	"github.com/stripe/stripe-go/v81/webhook"
+	"io"
+	"net/http"
 )
 
 type PaymentHandler struct {
+	channel *amqp.Channel
 }
 
-func NewPaymentHandler() *PaymentHandler {
-	return &PaymentHandler{}
+func NewPaymentHandler(ch *amqp.Channel) *PaymentHandler {
+	return &PaymentHandler{channel: ch}
 }
 
 func (h *PaymentHandler) RegisterRouters(c *gin.Engine) {
@@ -18,4 +30,55 @@ func (h *PaymentHandler) RegisterRouters(c *gin.Engine) {
 
 func (h *PaymentHandler) handleWebhook(c *gin.Context) {
 	logrus.Info("receive webhook from stripe")
+	const MaxBodyBytes = int64(65536)
+	c.Request.Body = http.MaxBytesReader(c.Writer, c.Request.Body, MaxBodyBytes)
+	payload, err := io.ReadAll(c.Request.Body)
+	if err != nil {
+		logrus.Infof("Error reading request body: %v\n", err)
+		c.JSON(http.StatusServiceUnavailable, err.Error())
+		return
+	}
+	event, err := webhook.ConstructEvent(payload, c.Request.Header.Get("Stripe-Signature"), viper.GetString("endpoint-stripe-secret"))
+	if err != nil {
+		logrus.Infof("Error verifying webhook signature: %v\n", err)
+		c.JSON(http.StatusBadRequest, err.Error())
+		return
+	}
+	switch event.Type {
+	case stripe.EventTypeCheckoutSessionCompleted:
+		var session stripe.CheckoutSession
+		if err := json.Unmarshal(event.Data.Raw, &session); err != nil {
+			logrus.Infof("error unmarshal event.data.raw into session, err = %v", err)
+			c.JSON(http.StatusBadRequest, err.Error())
+			return
+		}
+		if session.PaymentStatus == stripe.CheckoutSessionPaymentStatusPaid {
+			logrus.Infof("payment for checkout session %v success!", session.ID)
+			ctx, cancel := context.WithCancel(context.TODO())
+			defer cancel()
+
+			var items []*orderpb.Item
+			_ = json.Unmarshal([]byte(session.Metadata["item"]), &items)
+			marshalledOrder, err := json.Marshal(&domain.Order{
+				ID:          session.Metadata["orderID"],
+				CustomerID:  session.Metadata["customerID"],
+				Status:      string(stripe.CheckoutSessionPaymentStatusPaid),
+				PaymentLink: session.Metadata["paymentLink"],
+				Items:       items,
+			})
+			if err != nil {
+				logrus.Infof("error marshal domain.order, err = %v", err)
+				c.JSON(http.StatusBadRequest, err.Error())
+				return
+			}
+
+			_ = h.channel.PublishWithContext(ctx, broker.EventOrderPaid, "", false, false, amqp.Publishing{
+				ContentType:  "application/json",
+				DeliveryMode: amqp.Persistent,
+				Body:         marshalledOrder,
+			})
+			logrus.Infof("message published to %s, body: %s", broker.EventOrderPaid, string(marshalledOrder))
+		}
+	}
+	c.JSON(http.StatusOK, nil)
 }

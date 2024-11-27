@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"github.com/dsxriiiii/l3x_pay/common/genproto/orderpb"
 	"github.com/dsxriiiii/l3x_pay/order/app"
 	"github.com/dsxriiiii/l3x_pay/order/app/command"
@@ -29,9 +30,10 @@ func (s HttpServer) PostCustomerCustomerIDOrders(c *gin.Context, customerID stri
 		return
 	}
 	c.JSON(http.StatusOK, gin.H{
-		"message":    "success",
-		"customer_D": req.CustomerID,
-		"order_iD":   r.OrderID,
+		"message":      "success",
+		"customer_D":   req.CustomerID,
+		"order_iD":     r.OrderID,
+		"redirect_url": fmt.Sprintf("http://localhost:8282/success?customerID=%s&orderID=%s", req.CustomerID, r.OrderID),
 	})
 }
 
@@ -44,5 +46,10 @@ func (s HttpServer) GetCustomerCustomerIDOrdersOrderID(c *gin.Context, customerI
 	if err != nil {
 		c.JSON(http.StatusOK, gin.H{"error": err})
 	}
-	c.JSON(http.StatusOK, gin.H{"message": "success", "data": handle})
+	c.JSON(http.StatusOK, gin.H{
+		"message": "success",
+		"data": gin.H{
+			"Order": handle,
+		},
+	})
 }

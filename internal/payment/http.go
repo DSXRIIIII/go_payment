@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"encoding/json"
+	"fmt"
 	"github.com/dsxriiiii/l3x_pay/common/broker"
 	"github.com/dsxriiiii/l3x_pay/common/genproto/orderpb"
 	domain "github.com/dsxriiiii/l3x_pay/payment/domain"
@@ -12,6 +13,7 @@ import (
 	"github.com/spf13/viper"
 	"github.com/stripe/stripe-go/v81"
 	"github.com/stripe/stripe-go/v81/webhook"
+	"go.opentelemetry.io/otel"
 	"io"
 	"net/http"
 )
@@ -38,12 +40,16 @@ func (h *PaymentHandler) handleWebhook(c *gin.Context) {
 		c.JSON(http.StatusServiceUnavailable, err.Error())
 		return
 	}
-	event, err := webhook.ConstructEvent(payload, c.Request.Header.Get("Stripe-Signature"), viper.GetString("endpoint-stripe-secret"))
+
+	event, err := webhook.ConstructEvent(payload, c.Request.Header.Get("Stripe-Signature"),
+		viper.GetString("ENDPOINT_STRIPE_SECRET"))
+
 	if err != nil {
 		logrus.Infof("Error verifying webhook signature: %v\n", err)
 		c.JSON(http.StatusBadRequest, err.Error())
 		return
 	}
+
 	switch event.Type {
 	case stripe.EventTypeCheckoutSessionCompleted:
 		var session stripe.CheckoutSession
@@ -52,13 +58,16 @@ func (h *PaymentHandler) handleWebhook(c *gin.Context) {
 			c.JSON(http.StatusBadRequest, err.Error())
 			return
 		}
+
 		if session.PaymentStatus == stripe.CheckoutSessionPaymentStatusPaid {
 			logrus.Infof("payment for checkout session %v success!", session.ID)
+
 			ctx, cancel := context.WithCancel(context.TODO())
 			defer cancel()
 
 			var items []*orderpb.Item
-			_ = json.Unmarshal([]byte(session.Metadata["item"]), &items)
+			_ = json.Unmarshal([]byte(session.Metadata["items"]), &items)
+
 			marshalledOrder, err := json.Marshal(&domain.Order{
 				ID:          session.Metadata["orderID"],
 				CustomerID:  session.Metadata["customerID"],
@@ -72,10 +81,16 @@ func (h *PaymentHandler) handleWebhook(c *gin.Context) {
 				return
 			}
 
-			_ = h.channel.PublishWithContext(ctx, broker.EventOrderPaid, "", false, false, amqp.Publishing{
+			tr := otel.Tracer("rabbitmq")
+			mqCtx, span := tr.Start(ctx, fmt.Sprintf("rabbitmq.%s.publish", broker.EventOrderPaid))
+			defer span.End()
+
+			headers := broker.InjectRabbitMQHeaders(mqCtx)
+			_ = h.channel.PublishWithContext(mqCtx, broker.EventOrderPaid, "", false, false, amqp.Publishing{
 				ContentType:  "application/json",
 				DeliveryMode: amqp.Persistent,
 				Body:         marshalledOrder,
+				Headers:      headers,
 			})
 			logrus.Infof("message published to %s, body: %s", broker.EventOrderPaid, string(marshalledOrder))
 		}

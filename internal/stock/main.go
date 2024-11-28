@@ -7,6 +7,7 @@ import (
 	"github.com/dsxriiiii/l3x_pay/common/genproto/stockpb"
 	"github.com/dsxriiiii/l3x_pay/common/logging"
 	"github.com/dsxriiiii/l3x_pay/common/server"
+	"github.com/dsxriiiii/l3x_pay/common/tracing"
 	"github.com/dsxriiiii/l3x_pay/stock/ports"
 	"github.com/dsxriiiii/l3x_pay/stock/service"
 	"github.com/sirupsen/logrus"
@@ -26,6 +27,13 @@ func main() {
 	serverType := viper.GetString("stock.server-to-run")
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
+
+	shutdown, err := tracing.InitJaegerProvider(viper.GetString("jaeger.url"), serviceName)
+	if err != nil {
+		logrus.Fatal(err)
+	}
+	defer shutdown(ctx)
+
 	application := service.NewApplication(ctx)
 	deregisterFunc, err := discovery.RegisterToConsul(ctx, serviceName)
 	if err != nil {

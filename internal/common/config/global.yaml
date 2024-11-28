@@ -1,6 +1,12 @@
 fallback-grpc-addr: 127.0.0.1:5050
+dial-grpc-timeout: 10
+
+jaeger:
+  url: "http://127.0.0.1:14268/api/traces"
+
+
 consul:
-  addr: your_addr
+  addr: 116.198.246.11:8500
 order:
   service-name: order
   server-to-run: http
@@ -19,11 +25,12 @@ payment:
   http-addr: 127.0.0.1:8284
   grpc-addr: 127.0.0.1:5004
 
-stripe-key: your_key
+stripe-key: stripe-key
+endpoint-stripe-secret: endpoint-stripe-secret
 
 rabbitmq:
   user: guest
-  password: guest
+  password: password
   host: host
   port: port
 

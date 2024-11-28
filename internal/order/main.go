@@ -8,6 +8,7 @@ import (
 	"github.com/dsxriiiii/l3x_pay/common/genproto/orderpb"
 	"github.com/dsxriiiii/l3x_pay/common/logging"
 	"github.com/dsxriiiii/l3x_pay/common/server"
+	"github.com/dsxriiiii/l3x_pay/common/tracing"
 	"github.com/dsxriiiii/l3x_pay/order/infrastructure/consumer"
 	"github.com/dsxriiiii/l3x_pay/order/ports"
 	"github.com/dsxriiiii/l3x_pay/order/service"
@@ -30,6 +31,12 @@ func main() {
 
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
+
+	shutdown, err := tracing.InitJaegerProvider(viper.GetString("jaeger.url"), serviceName)
+	if err != nil {
+		logrus.Fatal(err)
+	}
+	defer shutdown(ctx)
 
 	application, cleanup := service.NewApplication(ctx)
 	defer cleanup()

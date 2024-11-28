@@ -6,6 +6,7 @@ import (
 	"github.com/dsxriiiii/l3x_pay/common/config"
 	"github.com/dsxriiiii/l3x_pay/common/logging"
 	"github.com/dsxriiiii/l3x_pay/common/server"
+	"github.com/dsxriiiii/l3x_pay/common/tracing"
 	"github.com/dsxriiiii/l3x_pay/payment/infrastructure/consumer"
 	"github.com/dsxriiiii/l3x_pay/payment/service"
 	"github.com/sirupsen/logrus"
@@ -20,12 +21,19 @@ func init() {
 }
 
 func main() {
+	serviceName := viper.GetString("payment.service-name")
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
 	serverType := viper.GetString("payment.server-to-run")
 
 	application, cleanup := service.NewApplication(ctx)
 	defer cleanup()
+
+	shutdown, err := tracing.InitJaegerProvider(viper.GetString("jaeger.url"), serviceName)
+	if err != nil {
+		logrus.Fatal(err)
+	}
+	defer shutdown(ctx)
 
 	ch, closeCh := broker.Connect(
 		viper.GetString("rabbitmq.user"),
@@ -44,7 +52,7 @@ func main() {
 
 	switch serverType {
 	case "http":
-		server.RunHttpServer(viper.GetString("payment.service-name"), paymentHandler.RegisterRouters)
+		server.RunHttpServer(serviceName, paymentHandler.RegisterRouters)
 	case "grpc":
 		logrus.Panic("unsupported server type: grpc")
 	default:

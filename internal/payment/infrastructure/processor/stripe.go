@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"github.com/dsxriiiii/l3x_pay/common/genproto/orderpb"
 	"github.com/dsxriiiii/l3x_pay/common/tracing"
+	"github.com/sirupsen/logrus"
 	"github.com/stripe/stripe-go/v81"
 	"github.com/stripe/stripe-go/v81/checkout/session"
 )
@@ -33,11 +34,12 @@ func (s StripeProcessor) CreatePaymentLink(ctx context.Context, order *orderpb.O
 	var items []*stripe.CheckoutSessionLineItemParams
 	for _, item := range order.Items {
 		items = append(items, &stripe.CheckoutSessionLineItemParams{
-			Price:    stripe.String(item.PriceID),
+			Price: stripe.String(item.PriceID),
+			//Price:    stripe.String("price_1QPb4qE3H882BCCxFAXzD7WZ"),
 			Quantity: stripe.Int64(int64(item.Quantity)),
 		})
 	}
-
+	logrus.Info(order.Items)
 	marshalledItems, _ := json.Marshal(order.Items)
 	metadata := map[string]string{
 		"orderID":     order.ID,

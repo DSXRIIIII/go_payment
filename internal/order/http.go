@@ -2,11 +2,12 @@ package main
 
 import (
 	"fmt"
-	"github.com/dsxriiiii/l3x_pay/common/genproto/orderpb"
+	client "github.com/dsxriiiii/l3x_pay/common/client/order"
 	"github.com/dsxriiiii/l3x_pay/common/tracing"
 	"github.com/dsxriiiii/l3x_pay/order/app"
 	"github.com/dsxriiiii/l3x_pay/order/app/command"
 	"github.com/dsxriiiii/l3x_pay/order/app/query"
+	"github.com/dsxriiiii/l3x_pay/order/convertor"
 	"github.com/gin-gonic/gin"
 	"net/http"
 )
@@ -20,14 +21,14 @@ func (s HttpServer) PostCustomerCustomerIDOrders(c *gin.Context, customerID stri
 	ctx, span := tracing.Start(c, "PostCustomerCustomerIDOrders")
 	defer span.End()
 
-	var req orderpb.CreateOrderRequest
+	var req client.CreateOrderRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err})
 		return
 	}
 	r, err := s.app.Commands.CreateOrder.Handle(ctx, command.CreateOrder{
 		CustomerID: req.CustomerID,
-		Items:      req.Items,
+		Items:      convertor.NewItemWithQuantityConvertor().ClientsToEntities(req.Items),
 	})
 	if err != nil {
 		c.JSON(http.StatusOK, gin.H{"error": err.Error()})

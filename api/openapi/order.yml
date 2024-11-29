@@ -77,6 +77,12 @@ components:
   schemas:
     Order:
       type: object
+      required:
+        - id
+        - customerID
+        - status
+        - items
+        - paymentLink
       properties:
         id:
           type: string

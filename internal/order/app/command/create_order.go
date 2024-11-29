@@ -7,9 +7,10 @@ import (
 	"fmt"
 	"github.com/dsxriiiii/l3x_pay/common/broker"
 	"github.com/dsxriiiii/l3x_pay/common/decorator"
-	"github.com/dsxriiiii/l3x_pay/common/genproto/orderpb"
 	"github.com/dsxriiiii/l3x_pay/order/app/query"
+	"github.com/dsxriiiii/l3x_pay/order/convertor"
 	domain "github.com/dsxriiiii/l3x_pay/order/domain/order"
+	"github.com/dsxriiiii/l3x_pay/order/entity"
 	amqp "github.com/rabbitmq/amqp091-go"
 	"github.com/sirupsen/logrus"
 	"go.opentelemetry.io/otel"
@@ -17,7 +18,7 @@ import (
 
 type CreateOrder struct {
 	CustomerID string
-	Items      []*orderpb.ItemWithQuantity
+	Items      []*entity.ItemWithQuantity
 }
 
 type CreateOrderResult struct {
@@ -91,25 +92,26 @@ func (c createOrderHandler) Handle(ctx context.Context, cmd CreateOrder) (*Creat
 	return &CreateOrderResult{OrderID: o.ID}, nil
 }
 
-func (c createOrderHandler) validate(ctx context.Context, items []*orderpb.ItemWithQuantity) ([]*orderpb.Item, error) {
+func (c createOrderHandler) validate(ctx context.Context, items []*entity.ItemWithQuantity) ([]*entity.Item, error) {
 	if len(items) == 0 {
 		return nil, errors.New("must have at least one item")
 	}
-	resp, err := c.stockGRPC.CheckIfItemsInStock(ctx, items)
+	items = packItems(items)
+	resp, err := c.stockGRPC.CheckIfItemsInStock(ctx, convertor.NewItemWithQuantityConvertor().EntitiesToProtos(items))
 	if err != nil {
 		return nil, err
 	}
-	return resp.Items, nil
+	return convertor.NewItemConvertor().ProtosToEntities(resp.Items), nil
 }
 
-func packItems(items []*orderpb.ItemWithQuantity) []*orderpb.ItemWithQuantity {
+func packItems(items []*entity.ItemWithQuantity) []*entity.ItemWithQuantity {
 	merged := make(map[string]int32)
 	for _, item := range items {
 		merged[item.ID] += item.Quantity
 	}
-	var res []*orderpb.ItemWithQuantity
+	var res []*entity.ItemWithQuantity
 	for id, quantity := range merged {
-		res = append(res, &orderpb.ItemWithQuantity{
+		res = append(res, &entity.ItemWithQuantity{
 			ID:       id,
 			Quantity: quantity,
 		})

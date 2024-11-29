@@ -33,6 +33,7 @@ rabbitmq:
   password: password
   host: host
   port: port
+  max-retry: 3
 
 
 

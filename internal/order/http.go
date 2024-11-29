@@ -6,6 +6,7 @@ import (
 	client "github.com/dsxriiiii/l3x_pay/common/client/order"
 	"github.com/dsxriiiii/l3x_pay/order/app"
 	"github.com/dsxriiiii/l3x_pay/order/app/command"
+	"github.com/dsxriiiii/l3x_pay/order/app/dto"
 	"github.com/dsxriiiii/l3x_pay/order/app/query"
 	"github.com/dsxriiiii/l3x_pay/order/convertor"
 	"github.com/gin-gonic/gin"
@@ -21,12 +22,8 @@ func (H HttpServer) PostCustomerCustomerIdOrders(c *gin.Context, customerID stri
 
 	var (
 		req  client.CreateOrderRequest
+		resp dto.CreateOrderResponse
 		err  error
-		resp struct {
-			CustomerID  string `json:"customer_id"`
-			OrderID     string `json:"order_id"`
-			RedirectURL string `json:"redirect_url"`
-		}
 	)
 
 	defer func() {
@@ -43,9 +40,11 @@ func (H HttpServer) PostCustomerCustomerIdOrders(c *gin.Context, customerID stri
 	if err != nil {
 		return
 	}
-	resp.CustomerID = req.CustomerId
-	resp.RedirectURL = fmt.Sprintf("http://localhost:8282/success?customerID=%s&orderID=%s", req.CustomerId, r.OrderID)
-	resp.OrderID = r.OrderID
+	resp = dto.CreateOrderResponse{
+		OrderID:     r.OrderID,
+		CustomerID:  req.CustomerId,
+		RedirectURL: fmt.Sprintf("http://localhost:8282/success?customerID=%s&orderID=%s", req.CustomerId, r.OrderID),
+	}
 }
 
 // GetCustomerCustomerIdOrdersOrderId (GET /customer/{customerID}/orders/{orderID})

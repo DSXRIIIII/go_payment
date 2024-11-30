@@ -137,20 +137,3 @@ components:
         quantity:
           type: integer
           format: int32
-
-    Response:
-      type: object
-      properties:
-        errno:
-          type: integer
-        message:
-          type: string
-        data:
-          type: object
-        trace_id:
-          type: string
-      required:
-        - errno
-        - message
-        - data
-        - trace_id

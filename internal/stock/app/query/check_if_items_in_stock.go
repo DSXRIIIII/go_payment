@@ -3,54 +3,66 @@ package query
 import (
 	"context"
 	"github.com/dsxriiiii/l3x_pay/common/decorator"
-	"github.com/dsxriiiii/l3x_pay/common/genproto/orderpb"
 	domain "github.com/dsxriiiii/l3x_pay/stock/domain/stock"
+	"github.com/dsxriiiii/l3x_pay/stock/entity"
+	integration "github.com/dsxriiiii/l3x_pay/stock/infrastructure/integration"
 	"github.com/sirupsen/logrus"
 )
 
 type CheckIfItemsInStock struct {
-	Items []*orderpb.ItemWithQuantity
+	Items []*entity.ItemWithQuantity
 }
 
-type CheckIfItemsInStockHandler decorator.QueryHandler[CheckIfItemsInStock, []*orderpb.Item]
+type CheckIfItemsInStockHandler decorator.QueryHandler[CheckIfItemsInStock, []*entity.Item]
 
 type checkIfItemsInStockHandler struct {
 	stockRepo domain.Repository
+	stripeAPI *integration.StripeAPI
 }
 
 func NewCheckIfItemsInStockHandler(
 	stockRepo domain.Repository,
+	stripeAPI *integration.StripeAPI,
 	logger *logrus.Entry,
 	metricClient decorator.MetricsClient,
 ) CheckIfItemsInStockHandler {
 	if stockRepo == nil {
 		panic("nil stockRepo")
 	}
-	return decorator.ApplyQueryDecorators[CheckIfItemsInStock, []*orderpb.Item](
-		checkIfItemsInStockHandler{stockRepo: stockRepo},
+	if stripeAPI == nil {
+		panic("nil stripeAPI")
+	}
+	return decorator.ApplyQueryDecorators[CheckIfItemsInStock, []*entity.Item](
+		checkIfItemsInStockHandler{stockRepo: stockRepo, stripeAPI: stripeAPI},
 		logger,
 		metricClient,
 	)
 }
 
-// TODO: 删掉
-var stub = map[string]string{
-	"1": "price_1QPb4qE3H882BCCxFAXzD7WZ",
-}
+//var stub = map[string]string{
+//	"1": "price_1QPb4qE3H882BCCxFAXzD7WZ",
+//}
 
-func (h checkIfItemsInStockHandler) Handle(ctx context.Context, query CheckIfItemsInStock) ([]*orderpb.Item, error) {
-	var res []*orderpb.Item
+func (h checkIfItemsInStockHandler) Handle(ctx context.Context, query CheckIfItemsInStock) ([]*entity.Item, error) {
+	var res []*entity.Item
 	for _, i := range query.Items {
-		// TODO: 改成从数据库 or stripe 获取
-		priceId, ok := stub[i.ID]
-		if !ok {
-			priceId = stub["1"]
+		priceID, err := h.stripeAPI.GetPriceByProductID(ctx, i.ID)
+		if err != nil || priceID == "" {
+			return nil, err
 		}
-		res = append(res, &orderpb.Item{
+		res = append(res, &entity.Item{
 			ID:       i.ID,
 			Quantity: i.Quantity,
-			PriceID:  priceId,
+			PriceID:  priceID,
 		})
 	}
 	return res, nil
 }
+
+//func getStubPriceID(id string) string {
+//	priceID, ok := stub[id]
+//	if !ok {
+//		priceID = stub["1"]
+//	}
+//	return priceID
+//}

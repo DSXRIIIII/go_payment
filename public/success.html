@@ -2,17 +2,20 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Gorder</title>
+  <title>go_pay</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;500;700&display=swap" rel="stylesheet">
 </head>
 <body>
-<section>
-  <p>
-    您已成功下单！
-  </p>
-  <p>
-    订单状态：<span id="orderStatus">等待中...</span>
-  </p>
-  <div class="ready-popup">
+<section class="order-container">
+  <div class="order-status">
+    <h1>订单提交成功！</h1>
+    <p class="status-text">
+      订单状态：<span id="orderStatus" class="status-badge">等待中...</span>
+    </p>
+  </div>
+
+  <div class="popup ready-popup">
     <p>您的订单正在处理中...</p>
     <p style="color:burlywood; margin:12px">
       订单号：<b><span id="orderID"></span></b>
@@ -23,7 +26,7 @@
     </button>
   </div>
 
-  <div class="after-payment-popup">
+  <div class="popup payment-popup">
     <p>等待支付中...</p>
     <a id="payment-link" href="#">去支付</a>
   </div>
@@ -31,77 +34,124 @@
 </body>
 
 <style>
-  html {
-    margin: 0;
-    padding: 0;
-    background-color: antiquewhite;
-    color: darkblue;
+  :root {
+    --primary-color: #2c3e50;
+    --secondary-color: #3498db;
+    --background-color: #f5f6fa;
+    --success-color: #27ae60;
+    --popup-background: rgba(255, 255, 255, 0.95);
+    --border-radius: 8px;
+    --box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
   }
 
-  section {
-    position: relative;
+  * {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+  }
+
+  html, body {
+    font-family: 'Noto Sans SC', sans-serif;
+    background-color: var(--background-color);
+    color: var(--primary-color);
+    line-height: 1.6;
+  }
+
+  .order-container {
+    min-height: 100vh;
     display: flex;
     flex-direction: column;
     justify-content: center;
     align-items: center;
-    height: 100vh;
-  }
-
-  .ready-popup {
-    display: none;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    position: fixed;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
     padding: 20px;
-    background-color: cadetblue;
-    z-index: 1;
-    border: 2px solid black;
-    border-radius: 5px;
   }
 
-  .ready-popup p {
-    margin: 0;
+  .order-status {
+    text-align: center;
+    margin-bottom: 30px;
   }
 
-  .after-payment-popup {
-    display: none;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    position: fixed;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    padding: 20px;
-    background-color: cadetblue;
-    z-index: 1;
-    border: 2px solid black;
-    border-radius: 5px;
+  h1 {
+    font-size: 2rem;
+    margin-bottom: 1rem;
+    color: var(--success-color);
   }
 
-  .after-payment-popup p {
-    margin: 0;
+  .status-text {
+    font-size: 1.2rem;
   }
-  .after-payment-popup a {
+
+  .status-badge {
+    background-color: var(--secondary-color);
     color: white;
-    margin-top: 10px;
-    padding: 5px 10px;
-    background-color: green;
-    border-radius: 5px;
-    text-decoration: none;
+    padding: 4px 12px;
+    border-radius: var(--border-radius);
+    font-weight: 500;
   }
 
-  .close-btn {
-    margin-top: 10px;
-    padding: 5px 10px;
-    background-color: green;
-    border-radius: 5px;
+  .popup {
+    display: none;
+    flex-direction: column;
+    align-items: center;
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    padding: 30px;
+    background: var(--popup-background);
+    border-radius: var(--border-radius);
+    box-shadow: var(--box-shadow);
+    z-index: 1000;
+    min-width: 300px;
+  }
+
+  .popup p {
+    margin: 8px 0;
+    text-align: center;
+  }
+
+  .order-id {
+    color: var(--secondary-color);
+    font-size: 1.2rem;
+    margin: 15px 0;
+  }
+
+  .button {
+    margin-top: 20px;
+    padding: 10px 24px;
+    background-color: var(--success-color);
+    color: white;
     border: none;
+    border-radius: var(--border-radius);
     cursor: pointer;
+    font-size: 1rem;
+    transition: background-color 0.3s ease;
+  }
+
+  .button:hover {
+    background-color: #219a52;
+  }
+
+  #payment-link {
+    display: inline-block;
+    text-decoration: none;
+    color: white;
+    background-color: var(--success-color);
+    padding: 10px 24px;
+    border-radius: var(--border-radius);
+    margin-top: 15px;
+    transition: background-color 0.3s ease;
+  }
+
+  #payment-link:hover {
+    background-color: #219a52;
+  }
+
+  @media (max-width: 768px) {
+    .popup {
+      width: 90%;
+      margin: 0 20px;
+    }
   }
 </style>
 
@@ -131,7 +181,7 @@
     if (data.data.status === 'waiting_for_payment') {
       order.status = '等待支付...';
       document.getElementById('orderStatus').innerText = order.status;
-      document.querySelector('.after-payment-popup').style.display = 'block';
+      document.querySelector('.payment-popup').style.display = 'block';
       document.getElementById('payment-link').href = data.data.payment_link;
     }
     if (data.data.status === 'paid') {
@@ -140,7 +190,7 @@
       setTimeout(getOrder, 5000);
     } else if (data.data.status === 'ready') {
       order.status = '已完成...';
-      document.querySelector('.after-payment-popup').style.display = 'none';
+      document.querySelector('.payment-popup').style.display = 'none';
       document.querySelector('.ready-popup').style.display = 'block';
       document.getElementById('orderID').innerText = orderID;
       document.getElementById('orderStatus').innerText = order.status;

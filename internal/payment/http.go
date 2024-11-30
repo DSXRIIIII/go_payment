@@ -42,7 +42,7 @@ func (h *PaymentHandler) handleWebhook(c *gin.Context) {
 	}
 
 	event, err := webhook.ConstructEvent(payload, c.Request.Header.Get("Stripe-Signature"),
-		viper.GetString("ENDPOINT_STRIPE_SECRET"))
+		viper.GetString("endpoint-stripe-secret"))
 
 	if err != nil {
 		logrus.Infof("Error verifying webhook signature: %v\n", err)

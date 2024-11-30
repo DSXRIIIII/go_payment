@@ -3,8 +3,10 @@ package ports
 import (
 	"context"
 	"github.com/dsxriiiii/l3x_pay/common/genproto/stockpb"
+	"github.com/dsxriiiii/l3x_pay/common/tracing"
 	"github.com/dsxriiiii/l3x_pay/stock/app"
 	"github.com/dsxriiiii/l3x_pay/stock/app/query"
+	"github.com/dsxriiiii/l3x_pay/stock/convertor"
 )
 
 type GRPCServer struct {
@@ -25,12 +27,17 @@ func (G GRPCServer) GetItems(ctx context.Context, request *stockpb.GetItemsReque
 }
 
 func (G GRPCServer) CheckIfItemsInStock(ctx context.Context, request *stockpb.CheckIfItemsInStockRequest) (*stockpb.CheckIfItemsInStockResponse, error) {
-	items, err := G.app.Queries.CheckIfItemsInStock.Handle(ctx, query.CheckIfItemsInStock{Items: request.Items})
+	_, span := tracing.Start(ctx, "CheckIfItemsInStock")
+	defer span.End()
+
+	items, err := G.app.Queries.CheckIfItemsInStock.Handle(ctx, query.CheckIfItemsInStock{
+		Items: convertor.NewItemWithQuantityConvertor().ProtosToEntities(request.Items),
+	})
 	if err != nil {
 		return nil, err
 	}
 	return &stockpb.CheckIfItemsInStockResponse{
 		InStock: 1,
-		Items:   items,
+		Items:   convertor.NewItemConvertor().EntitiesToProtos(items),
 	}, nil
 }

@@ -2,8 +2,9 @@ package tests
 
 import (
 	"context"
+	"fmt"
 	sw "github.com/dsxriiiii/l3x_pay/common/client/order"
-	"github.com/dsxriiiii/l3x_pay/common/config"
+	"github.com/spf13/viper"
 	"github.com/stretchr/testify/assert"
 	"log"
 	"testing"
@@ -11,7 +12,7 @@ import (
 
 var (
 	ctx    = context.Background()
-	server = "http://127.0.0.1:8282/api"
+	server = fmt.Sprintf("http://%s/api", viper.GetString("order.http-addr"))
 )
 
 func TestMain(m *testing.M) {
@@ -20,7 +21,6 @@ func TestMain(m *testing.M) {
 }
 
 func before() {
-	config.ViperInit()
 	log.Printf("server=%s", server)
 }
 
@@ -29,12 +29,16 @@ func TestCreateOrder_success(t *testing.T) {
 		CustomerId: "123",
 		Items: []sw.ItemWithQuantity{
 			{
-				Id:       "test-item-1",
+				Id:       "prod_R3g7MikGYsXKzr",
 				Quantity: 1,
+			},
+			{
+				Id:       "prod_R285C3Wb7FDprc",
+				Quantity: 10,
 			},
 		},
 	})
-	t.Logf("body=%s", string(rune(response.StatusCode())))
+	t.Logf("body=%s", string(response.Body))
 	assert.Equal(t, 200, response.StatusCode())
 
 	assert.Equal(t, 0, response.JSON200.Errno)
@@ -55,6 +59,7 @@ func getResponse(t *testing.T, customerID string, body sw.PostCustomerCustomerId
 	if err != nil {
 		t.Fatal(err)
 	}
+	t.Logf("getResponse body=%+v", body)
 	response, err := client.PostCustomerCustomerIdOrdersWithResponse(ctx, customerID, body)
 	if err != nil {
 		t.Fatal(err)

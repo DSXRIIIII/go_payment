@@ -2,6 +2,7 @@ package grpc
 
 import (
 	"context"
+	"errors"
 	"github.com/dsxriiiii/l3x_pay/common/genproto/orderpb"
 	"github.com/dsxriiiii/l3x_pay/common/genproto/stockpb"
 	"github.com/sirupsen/logrus"
@@ -17,9 +18,12 @@ func NewStockGRPC(client stockpb.StockServiceClient) *StockGRPC {
 	}
 }
 
-func (s StockGRPC) CheckIfItemsInStock(ctx context.Context, itemIDs []*orderpb.ItemWithQuantity) (*stockpb.CheckIfItemsInStockResponse, error) {
+func (s StockGRPC) CheckIfItemsInStock(ctx context.Context, items []*orderpb.ItemWithQuantity) (*stockpb.CheckIfItemsInStockResponse, error) {
+	if items == nil {
+		return nil, errors.New("grpc items cannot be nil")
+	}
 	resp, err := s.client.CheckIfItemsInStock(ctx, &stockpb.CheckIfItemsInStockRequest{
-		Items: itemIDs,
+		Items: items,
 	})
 	logrus.Info("stock_grpc response", resp)
 	return resp, err

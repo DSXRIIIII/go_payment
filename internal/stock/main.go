@@ -17,9 +17,7 @@ import (
 
 func init() {
 	logging.Init()
-	if err := config.NewViperConfig(); err != nil {
-		logrus.Fatal(err)
-	}
+	config.ViperInit()
 }
 
 func main() {

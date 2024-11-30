@@ -6,7 +6,7 @@ jaeger:
 
 
 consul:
-  addr: 116.198.246.11:8500
+  addr: addr
 order:
   service-name: order
   server-to-run: http
@@ -33,7 +33,15 @@ rabbitmq:
   password: password
   host: host
   port: port
-  max-retry: 3
+
+mongo:
+  user: mongo
+  password: 123456
+  host: 127.0.0.1
+  port: 27017
+  db-name: "order"
+  coll-name: "order"
+
 
 
 

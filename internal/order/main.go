@@ -16,14 +16,11 @@ import (
 	"github.com/sirupsen/logrus"
 	"github.com/spf13/viper"
 	"google.golang.org/grpc"
-	"log"
 )
 
 func init() {
 	logging.Init()
-	if err := config.NewViperConfig(); err != nil {
-		log.Fatal(err)
-	}
+	config.ViperInit()
 }
 
 func main() {
@@ -31,7 +28,6 @@ func main() {
 
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
-
 	shutdown, err := tracing.InitJaegerProvider(viper.GetString("jaeger.url"), serviceName)
 	if err != nil {
 		logrus.Fatal(err)

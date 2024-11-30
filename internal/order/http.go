@@ -18,7 +18,7 @@ type HttpServer struct {
 }
 
 // PostCustomerCustomerIdOrders (POST /customer/{customerID}/orders)
-func (H HttpServer) PostCustomerCustomerIdOrders(c *gin.Context, customerID string) {
+func (H HttpServer) PostCustomerCustomerIdOrders(c *gin.Context, _ string) {
 
 	var (
 		req  client.CreateOrderRequest

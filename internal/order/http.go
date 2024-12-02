@@ -1,6 +1,7 @@
 package main
 
 import (
+	"errors"
 	"fmt"
 	"github.com/dsxriiiii/l3x_pay/common"
 	client "github.com/dsxriiiii/l3x_pay/common/client/order"
@@ -31,6 +32,9 @@ func (H HttpServer) PostCustomerCustomerIdOrders(c *gin.Context, _ string) {
 	}()
 
 	if err = c.ShouldBindJSON(&req); err != nil {
+		return
+	}
+	if err = H.validate(req); err != nil {
 		return
 	}
 	r, err := H.app.Commands.CreateOrder.Handle(c.Request.Context(), command.CreateOrder{
@@ -66,4 +70,13 @@ func (H HttpServer) GetCustomerCustomerIdOrdersOrderId(c *gin.Context, customerI
 	}
 
 	resp = convertor.NewOrderConvertor().EntityToClient(o)
+}
+
+func (H HttpServer) validate(req client.CreateOrderRequest) error {
+	for _, v := range req.Items {
+		if v.Quantity <= 0 {
+			return errors.New("quantity must be positive")
+		}
+	}
+	return nil
 }

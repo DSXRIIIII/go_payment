@@ -1,0 +1,313 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>商品下单</title>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;500;700&display=swap" rel="stylesheet">
+</head>
+<body>
+<div class="order-container">
+    <!-- 第一个商品 -->
+    <div class="product-card">
+        <div class="product-image">
+            📸
+        </div>
+        <div class="product-details">
+            <h2 class="product-title">拍立得相机</h2>
+            <p class="product-price">$1.50</p>
+            <p class="product-description">即拍即得，记录美好时刻</p>
+        </div>
+        <button class="order-button" onclick="handleOrder('prod_RIBRYeGX7Vpawu')" id="orderButton1">
+            <div class="button-content">
+                <span class="button-text">立即下单</span>
+                <span class="button-icon">→</span>
+                <div class="loading-spinner" id="loadingSpinner1"></div>
+            </div>
+        </button>
+    </div>
+
+    <!-- 第二个商品 -->
+    <div class="product-card">
+        <div class="product-image">
+            🎧
+        </div>
+        <div class="product-details">
+            <h2 class="product-title">无线耳机</h2>
+            <p class="product-price">$2.50</p>
+            <p class="product-description">高品质音质，无线体验</p>
+        </div>
+        <button class="order-button" onclick="handleOrder('prod_RK7DwehmDNw9ha')" id="orderButton2">
+            <div class="button-content">
+                <span class="button-text">立即下单</span>
+                <span class="button-icon">→</span>
+                <div class="loading-spinner" id="loadingSpinner2"></div>
+            </div>
+        </button>
+    </div>
+
+    <!-- 第三个商品 -->
+    <div class="product-card">
+        <div class="product-image">
+            ⌚
+        </div>
+        <div class="product-details">
+            <h2 class="product-title">智能手表</h2>
+            <p class="product-price">$3.50</p>
+            <p class="product-description">智能提醒，运动监测</p>
+        </div>
+        <button class="order-button" onclick="handleOrder('prod_RK7Crj9rjrJLx1')" id="orderButton3">
+            <div class="button-content">
+                <span class="button-text">立即下单</span>
+                <span class="button-icon">→</span>
+                <div class="loading-spinner" id="loadingSpinner3"></div>
+            </div>
+        </button>
+    </div>
+</div>
+
+<style>
+    body {
+        margin: 0;
+        min-height: 100vh;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        background: linear-gradient(135deg, #1a2a6c, #b21f1f, #fdbb2d);
+        font-family: 'Noto Sans SC', sans-serif;
+    }
+
+    .order-container {
+        padding: 80px;
+        background: rgba(255, 255, 255, 0.1);
+        backdrop-filter: blur(10px);
+        border-radius: 25px;
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+        display: flex;
+        flex-direction: row;
+        justify-content: center;
+        align-items: stretch;
+        max-width: 1000px;
+        width: 100%;
+        gap: 30px;
+    }
+
+    .product-card {
+        background: rgba(255, 255, 255, 0.95);
+        padding: 20px;
+        border-radius: 15px;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        width: 250px;
+        min-width: 250px;
+        max-width: 250px;
+        transition: transform 0.3s ease;
+        display: flex;
+        flex-direction: column;
+    }
+
+    .product-card:hover {
+        transform: translateY(-5px);
+    }
+
+    .product-image {
+        font-size: 48px;
+        text-align: center;
+        margin-bottom: 10px;
+        animation: float 3s ease-in-out infinite;
+    }
+
+    @keyframes float {
+        0% { transform: translateY(0px); }
+        50% { transform: translateY(-10px); }
+        100% { transform: translateY(0px); }
+    }
+
+    .product-details {
+        text-align: center;
+    }
+
+    .product-title {
+        color: #2c3e50;
+        font-size: 20px;
+        margin: 0 0 8px 0;
+        font-weight: 600;
+    }
+
+    .product-price {
+        color: #e74c3c;
+        font-size: 28px;
+        font-weight: 700;
+        margin: 8px 0;
+    }
+
+    .product-description {
+        color: #7f8c8d;
+        font-size: 13px;
+        margin: 8px 0;
+    }
+
+    .order-button {
+        position: relative;
+        padding: 14px 32px;
+        border: none;
+        border-radius: 12px;
+        background: linear-gradient(45deg, #FF6B6B, #4ECDC4);
+        color: white;
+        font-size: 18px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        overflow: hidden;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        width: 90%;
+        justify-content: center;
+        margin-top: auto;  /* 按钮固定在底部 */
+        width: 100%;
+        padding: 12px 20px;
+    }
+
+    .order-button:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+    }
+
+    .order-button:active {
+        transform: translateY(1px);
+    }
+
+    .button-text {
+        z-index: 1;
+    }
+
+    .button-icon {
+        font-size: 20px;
+        transition: transform 0.3s ease;
+        z-index: 1;
+    }
+
+    .order-button:hover .button-icon {
+        transform: translateX(5px);
+    }
+
+    .order-button::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(45deg, #4ECDC4, #FF6B6B);
+        opacity: 0;
+        transition: opacity 0.3s ease;
+    }
+
+    .order-button:hover::before {
+        opacity: 1;
+    }
+
+    .order-button:disabled {
+        background: linear-gradient(45deg, #ccc, #999);
+        cursor: not-allowed;
+        transform: none;
+    }
+
+    .order-button:disabled::before {
+        display: none;
+    }
+
+    .loading-spinner {
+        display: none;
+        width: 20px;
+        height: 20px;
+        border: 2px solid #ffffff;
+        border-radius: 50%;
+        border-top-color: transparent;
+        animation: spin 0.8s linear infinite;
+        margin-left: 8px;
+    }
+
+    @keyframes spin {
+        to {
+            transform: rotate(360deg);
+        }
+    }
+
+    .button-content {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    @media (max-width: 900px) {
+        .order-container {
+            padding: 30px;
+            gap: 20px;
+        }
+
+        .product-card {
+            width: 100%;
+            min-width: unset;
+            max-width: 280px;
+        }
+    }
+</style>
+
+<script>
+    async function handleOrder(productId) {
+        const buttonId = productId === 'prod_RIBRYeGX7Vpawu' ? '1' :
+            productId === 'prod_RK7DwehmDNw9ha' ? '2' : '3';
+
+        const button = document.getElementById('orderButton' + buttonId);
+        const spinner = document.getElementById('loadingSpinner' + buttonId);
+        const buttonIcon = button.querySelector('.button-icon');
+
+        // 禁用按钮并显示加载动画
+        button.disabled = true;
+        spinner.style.display = 'block';
+        buttonIcon.style.display = 'none';
+        button.querySelector('.button-text').textContent = '处理中...';
+
+        const orderData = {
+            customer_id: "123123",
+            Items: [
+                {"ID": productId, "Quantity": 1}
+            ]
+        };
+
+        try {
+            const response = await fetch(`http://localhost:8282/api/customer/${orderData.customer_id}/orders`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                mode: 'cors',
+                body: JSON.stringify(orderData)
+            });
+
+            const result = await response.json();
+
+            if (result.errno === 0) {
+                window.location.href = result.data.redirect_url;
+            } else {
+                // 恢复按钮状态
+                button.disabled = false;
+                spinner.style.display = 'none';
+                buttonIcon.style.display = 'inline';
+                button.querySelector('.button-text').textContent = '立即下单';
+                alert('下单失败：' + result.message);
+            }
+        } catch (error) {
+            // 恢复按钮状态
+            button.disabled = false;
+            spinner.style.display = 'none';
+            buttonIcon.style.display = 'inline';
+            button.querySelector('.button-text').textContent = '立即下单';
+            console.error('下单出错：', error);
+            alert('下单发生错误，请重试');
+        }
+    }
+</script>
+</body>
+</html> 

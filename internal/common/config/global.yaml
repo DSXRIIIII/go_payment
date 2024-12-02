@@ -4,7 +4,6 @@ dial-grpc-timeout: 10
 jaeger:
   url: url
 
-
 consul:
   addr: addr
 order:
@@ -34,6 +33,18 @@ rabbitmq:
   host: host
   port: port
 
+redis:
+  local:
+    ip: ip
+    port: 6379
+    password: password
+    pool_size: 100
+    max_conn: 100
+    conn_timeout: 1000
+    read_timeout: 1000
+    write_timeout: 100
+
+
 mongo:
   user: mongo
   password: 123456
@@ -42,6 +53,12 @@ mongo:
   db-name: "order"
   coll-name: "order"
 
+mysql:
+  user: root
+  password: 123456
+  host: 127.0.0.1
+  port: 3306
+  dbname: "go_pay"
 
 
 

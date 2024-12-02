@@ -7,11 +7,14 @@ import (
 	"github.com/dsxriiiii/l3x_pay/stock/app"
 	"github.com/dsxriiiii/l3x_pay/stock/app/query"
 	"github.com/dsxriiiii/l3x_pay/stock/infrastructure/integration"
+	"github.com/dsxriiiii/l3x_pay/stock/infrastructure/persistent"
 	"github.com/sirupsen/logrus"
 )
 
 func NewApplication(_ context.Context) app.Application {
-	stockRepo := adapters.NewMemoryStockRepository()
+	//stockRepo := adapters.NewMemoryStockRepository()
+	db := persistent.NewMySQL()
+	stockRepo := adapters.NewMySQLStockRepository(db)
 	logger := logrus.NewEntry(logrus.StandardLogger())
 	metricsClient := metrics.TodoMetrics{}
 	stripeAPI := integration.NewStripeAPI()

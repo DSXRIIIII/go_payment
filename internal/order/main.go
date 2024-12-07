@@ -64,6 +64,7 @@ func main() {
 
 	server.RunHttpServer(serviceName, func(router *gin.Engine) {
 		router.StaticFile("/success", "../../public/success.html")
+		router.StaticFile("/order", "../../public/order.html")
 		ports.RegisterHandlersWithOptions(router, HttpServer{
 			app: application,
 		}, ports.GinServerOptions{

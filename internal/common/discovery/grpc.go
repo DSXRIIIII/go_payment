@@ -23,7 +23,7 @@ func RegisterToConsul(ctx context.Context, serviceName string) (func() error, er
 	go func() {
 		for {
 			if err := registry.HealthCheck(instanceID, serviceName); err != nil {
-				logrus.Panicf("no heartbeat from %s to registry, err=%v", serviceName, err)
+				logrus.Errorf("no heartbeat from %s to registry, err=%v", serviceName, err)
 			}
 			time.Sleep(1 * time.Second)
 		}
